@@ -65,8 +65,8 @@ if __name__ == '__main__':
 
     
     # Set XlinkOut for disparity, rectifiedLeft, and rectifiedRight
-    xoutDepth = pipeline.createXLinkOut()
-    xoutDepth.setStreamName("depth")
+    xoutDisp = pipeline.createXLinkOut()
+    xoutDisp.setStreamName("disparity")
     
     xoutRectifiedLeft = pipeline.createXLinkOut()
     xoutRectifiedLeft.setStreamName("rectifiedLeft")
@@ -74,17 +74,18 @@ if __name__ == '__main__':
     xoutRectifiedRight = pipeline.createXLinkOut()
     xoutRectifiedRight.setStreamName("rectifiedRight")
 
-    stereo.depth.link(xoutDepth.input)
+    stereo.disparity.link(xoutDisp.input)
     
     stereo.rectifiedLeft.link(xoutRectifiedLeft.input)
     stereo.rectifiedRight.link(xoutRectifiedRight.input)
     
     # Pipeline is defined, now we can connect to the device
+
     with dai.Device(pipeline) as device:
 
         
         # Output queues will be used to get the rgb frames and nn data from the outputs defined above
-        depthQueue = device.getOutputQueue(name="depth", maxSize=1, blocking=False)
+        disparityQueue = device.getOutputQueue(name="disparity", maxSize=1, blocking=False)
         rectifiedLeftQueue = device.getOutputQueue(name="rectifiedLeft", maxSize=1, blocking=False)
         rectifiedRightQueue = device.getOutputQueue(name="rectifiedRight", maxSize=1, blocking=False)
 
@@ -102,9 +103,16 @@ if __name__ == '__main__':
         while True:
             
             # Get disparity map
-            frame = getFrame(depthQueue)
+            disparity = getFrame(disparityQueue)
             
-            framex = frame.astype(np.uint16)
+            # Colormap disparity for display
+            disparity = (disparity * disparityMultiplier).astype(np.uint8)
+            disparity = cv2.applyColorMap(disparity, cv2.COLORMAP_JET)
+            
+            print(disparity)
+
+            # Calcualate depth
+            #depth = focal_length_in_pixels * baseline / disparity_in_pixels
 
             # Get left and right rectified frame
             leftFrame = getFrame(rectifiedLeftQueue)
@@ -123,7 +131,7 @@ if __name__ == '__main__':
             imOut = cv2.line(imOut, (mouseX, mouseY), (1280, mouseY), (0, 0, 255), 2)
             imOut = cv2.circle(imOut, (mouseX, mouseY), 2, (255, 255, 128), 2)
             cv2.imshow("Stereo Pair", imOut)
-            cv2.imshow("Disparity", framex)
+            cv2.imshow("Disparity", disparity)
 
             # Check for keyboard input
             key = cv2.waitKey(1)
