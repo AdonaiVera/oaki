@@ -117,16 +117,6 @@ class oaki():
         p = Process(target=self.sound, args=(self.q1,))
         p.start()
 
-    def addImageWatermark(waterImg,OriImg,pos=(10,100),):
-        tempImg = OriImg.copy()
-        overlay = transparentOverlay(tempImg, waterImg, pos)
-        output = OriImg.copy()
-        # apply the overlay
-        cv2.addWeighted(overlay, output, 1 - opacity, 0, output)
-        cv2.imshow('Life2Coding', output)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
     def sound(self, queue):
         time.sleep(5)
         while True:
@@ -336,29 +326,6 @@ class oaki():
                         if bProcess8 == 0:
                             self.q1.put(self.process_count)
                         bProcess8 = 1
-
-
-
-
-
-
-                    """
-                    self.phrase = {
-        
-                    2: "Go back! You have to be 3 meters from the camera",
-                    3: "You know I can measure the depth from the camera to your body",
-                    4: "Too much, please come closer",
-                    5: "Now it's perfect, please put your hands up",
-                    6: "Now put your hands forward",
-                    7: "Now let's start the training",
-                    8: "Today we are going to do some push-ups",
-                    9: "Five more",
-                    10: "The last one",
-                    11: "Good Job, we are done for today",
-                    12: "See you tomorrow Adonai",
-                }
-                    """
-
 
 
                     y_offset = 50
